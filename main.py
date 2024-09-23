@@ -41,6 +41,11 @@ class CustomButton(QPushButton):
         self.animation.setEndValue(self.pos() + QPoint(0, 5))
         self.animation.start()
 
+    def reset_position(self):
+        self.animation.setStartValue(self.pos())
+        self.animation.setEndValue(self.pos() + QPoint(0, 0))
+        self.animation.start()
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
@@ -385,8 +390,8 @@ class TranslatorApp(QMainWindow):
         # Change the button text briefly
         button.setText("Copied!")
         
-        # Reset the button text after a short delay
-        QTimer.singleShot(1000, lambda: button.setText(original_text))
+        # Reset the button text and position after a short delay
+        QTimer.singleShot(1000, lambda: (button.setText(original_text), button.reset_position()))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
