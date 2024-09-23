@@ -30,16 +30,24 @@ class CustomButton(QPushButton):
         self.animation = QPropertyAnimation(self, b"pos")
         self.animation.setEasingCurve(QEasingCurve.OutQuad)
         self.animation.setDuration(100)
+        
+        self.initial_position = None
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.initial_position = self.pos()
 
     def enterEvent(self, event):
-        self.animate_button(-5)
+        if self.initial_position:
+            self.animate_button(self.initial_position + QPoint(0, -5))
 
     def leaveEvent(self, event):
-        self.animate_button(0)
+        if self.initial_position:
+            self.animate_button(self.initial_position)
 
-    def animate_button(self, y_offset):
+    def animate_button(self, end_pos):
         self.animation.setStartValue(self.pos())
-        self.animation.setEndValue(self.pos() + QPoint(0, y_offset))
+        self.animation.setEndValue(end_pos)
         self.animation.start()
 
     def paintEvent(self, event):
