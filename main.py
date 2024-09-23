@@ -66,19 +66,28 @@ class TranslatorApp(QMainWindow):
         layout.addWidget(self.output_text)
 
     def translate(self):
-        if not self.config_manager.get_api_key():
+        api_key = self.config_manager.get_api_key()
+        if not api_key:
             QMessageBox.warning(self, "API Key Missing", "Please set your API key in the settings.")
             return
 
         input_text = self.input_text.toPlainText()
-        if input_text:
-            try:
-                translated_text = self.translator.translate(input_text, self.toggle_direction_button.text() == "English to German")
-                self.output_text.setPlainText(translated_text)
-            except Exception as e:
-                self.output_text.setPlainText(f"Error: {str(e)}")
-        else:
+        if not input_text:
             self.output_text.setPlainText("Please enter some text to translate.")
+            return
+
+        try:
+            translated_text = self.translator.translate(input_text, self.toggle_direction_button.text() == "English to German")
+            self.output_text.setPlainText(translated_text)
+        except Exception as e:
+            error_message = str(e)
+            self.output_text.setPlainText(f"Error: {error_message}")
+            if "Network error" in error_message:
+                QMessageBox.critical(self, "Network Error", "Unable to connect to the translation service. Please check your internet connection and try again.")
+            elif "API key is not set or invalid" in error_message:
+                QMessageBox.critical(self, "API Key Error", "Your API key appears to be invalid. Please check your settings and ensure you've entered a valid API key.")
+            else:
+                QMessageBox.critical(self, "Translation Error", f"An error occurred during translation: {error_message}")
 
     def open_settings(self):
         dialog = SettingsDialog(self.config_manager)
