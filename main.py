@@ -363,7 +363,24 @@ class TranslatorApp(QMainWindow):
     def copy_to_clipboard(self):
         clipboard = QApplication.clipboard()
         clipboard.setText(self.output_text.toPlainText())
-        QMessageBox.information(self, "Copied", "Text copied to clipboard!")
+        
+        # Store the original style
+        original_style = self.sender().styleSheet()
+        
+        # Change the button color briefly
+        self.sender().setStyleSheet("""
+            QPushButton {
+                background-color: #2ecc71;
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+        """)
+        
+        # Reset the button style after a short delay
+        QTimer.singleShot(300, lambda: self.sender().setStyleSheet(original_style))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
