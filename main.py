@@ -32,18 +32,14 @@ class CustomButton(QPushButton):
         self.animation.setDuration(100)
 
     def enterEvent(self, event):
-        self.animation.setStartValue(self.pos())
-        self.animation.setEndValue(self.pos() + QPoint(0, -5))
-        self.animation.start()
+        self.animate_button(-5)
 
     def leaveEvent(self, event):
-        self.animation.setStartValue(self.pos())
-        self.animation.setEndValue(self.pos() + QPoint(0, 5))
-        self.animation.start()
+        self.animate_button(0)
 
-    def reset_position(self):
+    def animate_button(self, y_offset):
         self.animation.setStartValue(self.pos())
-        self.animation.setEndValue(self.pos() + QPoint(0, 0))
+        self.animation.setEndValue(self.pos() + QPoint(0, y_offset))
         self.animation.start()
 
     def paintEvent(self, event):
@@ -384,14 +380,20 @@ class TranslatorApp(QMainWindow):
         if not isinstance(button, CustomButton):
             return
         
-        # Store the original text
+        # Store the original text and style
         original_text = button.text()
+        original_style = button.styleSheet()
         
-        # Change the button text briefly
+        # Change the button text and style briefly
         button.setText("Copied!")
+        button.setStyleSheet(original_style + "background-color: #2ecc71;")
         
-        # Reset the button text and position after a short delay
-        QTimer.singleShot(1000, lambda: (button.setText(original_text), button.reset_position()))
+        # Reset the button text and style after a short delay
+        def reset_button():
+            button.setText(original_text)
+            button.setStyleSheet(original_style)
+        
+        QTimer.singleShot(1000, reset_button)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
