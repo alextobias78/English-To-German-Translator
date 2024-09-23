@@ -201,6 +201,11 @@ class TranslatorApp(QMainWindow):
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
                 height: 0px;
             }
+            QWidget#control_panel {
+                background-color: #34495e;
+                border-radius: 10px;
+                margin: 10px;
+            }
         """)
 
         central_widget = QWidget(self)
@@ -222,8 +227,9 @@ class TranslatorApp(QMainWindow):
 
         # Control panel
         control_panel = QWidget()
+        control_panel.setObjectName("control_panel")
         control_layout = QHBoxLayout(control_panel)
-        control_layout.setContentsMargins(20, 10, 20, 10)
+        control_layout.setContentsMargins(20, 15, 20, 15)
         self.direction_toggle = ToggleSwitch(self)
         self.direction_toggle.toggled.connect(self.toggle_direction)
         self.en_label = QLabel('🇬🇧 EN')
@@ -234,12 +240,21 @@ class TranslatorApp(QMainWindow):
         control_layout.addWidget(self.direction_toggle)
         control_layout.addWidget(self.de_label)
         control_layout.addStretch()
+        
+        button_layout = QHBoxLayout()
         translate_button = CustomButton('Translate')
         translate_button.clicked.connect(self.translate)
-        control_layout.addWidget(translate_button)
+        button_layout.addWidget(translate_button)
+        
+        copy_button = CustomButton('Copy to Clipboard')
+        copy_button.clicked.connect(self.copy_to_clipboard)
+        button_layout.addWidget(copy_button)
+        
         clear_button = CustomButton('Clear All')
         clear_button.clicked.connect(self.clear_all)
-        control_layout.addWidget(clear_button)
+        button_layout.addWidget(clear_button)
+        
+        control_layout.addLayout(button_layout)
         main_layout.addWidget(control_panel)
 
         # Text areas
@@ -247,35 +262,30 @@ class TranslatorApp(QMainWindow):
         text_layout.setContentsMargins(20, 20, 20, 20)
         text_layout.setSpacing(20)
 
-        # Input area
-        input_layout = QVBoxLayout()
-        input_header = QHBoxLayout()
-        input_header.addWidget(QLabel('Original Text:'))
-        self.input_char_count = QLabel('Characters: 0')
-        self.input_char_count.setStyleSheet("color: #bdc3c7;")
-        input_header.addWidget(self.input_char_count)
-        input_layout.addLayout(input_header)
-        self.input_text = QTextEdit()
-        self.input_text.setPlaceholderText("Enter text to translate...")
-        input_layout.addWidget(self.input_text)
-        text_layout.addLayout(input_layout)
-
-        # Output area
-        output_layout = QVBoxLayout()
-        output_header = QHBoxLayout()
-        output_header.addWidget(QLabel('Translated Text:'))
-        self.output_char_count = QLabel('Characters: 0')
-        self.output_char_count.setStyleSheet("color: #bdc3c7;")
-        output_header.addWidget(self.output_char_count)
-        output_layout.addLayout(output_header)
-        self.output_text = QTextEdit()
-        self.output_text.setReadOnly(True)
-        self.output_text.setPlaceholderText("Translation will appear here...")
-        output_layout.addWidget(self.output_text)
-        copy_button = CustomButton('Copy to Clipboard')
-        copy_button.clicked.connect(self.copy_to_clipboard)
-        output_layout.addWidget(copy_button)
-        text_layout.addLayout(output_layout)
+        # Text areas
+        for area_type in ['input', 'output']:
+            layout = QVBoxLayout()
+            header = QHBoxLayout()
+            label = QLabel('Original Text:' if area_type == 'input' else 'Translated Text:')
+            header.addWidget(label)
+            char_count = QLabel('Characters: 0')
+            char_count.setStyleSheet("color: #bdc3c7;")
+            header.addWidget(char_count)
+            layout.addLayout(header)
+            
+            text_edit = QTextEdit()
+            text_edit.setPlaceholderText("Enter text to translate..." if area_type == 'input' else "Translation will appear here...")
+            if area_type == 'output':
+                text_edit.setReadOnly(True)
+            layout.addWidget(text_edit)
+            
+            text_layout.addLayout(layout)
+            
+            setattr(self, f'{area_type}_text', text_edit)
+            setattr(self, f'{area_type}_char_count', char_count)
+        
+        # Add a small spacing between text areas
+        text_layout.addSpacing(20)
 
         main_layout.addLayout(text_layout)
 
@@ -366,26 +376,17 @@ class TranslatorApp(QMainWindow):
         
         # Get the button that was clicked
         button = self.sender()
-        if not isinstance(button, QPushButton):
+        if not isinstance(button, CustomButton):
             return
         
-        # Store the original style
-        original_style = button.styleSheet()
+        # Store the original text
+        original_text = button.text()
         
-        # Change the button color briefly
-        button.setStyleSheet("""
-            QPushButton {
-                background-color: #2ecc71;
-                color: white;
-                border: none;
-                padding: 10px;
-                border-radius: 5px;
-                font-weight: bold;
-            }
-        """)
+        # Change the button text briefly
+        button.setText("Copied!")
         
-        # Reset the button style after a short delay
-        QTimer.singleShot(300, lambda: button.setStyleSheet(original_style))
+        # Reset the button text after a short delay
+        QTimer.singleShot(1000, lambda: button.setText(original_text))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
