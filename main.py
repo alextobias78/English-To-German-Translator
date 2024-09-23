@@ -364,11 +364,16 @@ class TranslatorApp(QMainWindow):
         clipboard = QApplication.clipboard()
         clipboard.setText(self.output_text.toPlainText())
         
+        # Get the button that was clicked
+        button = self.sender()
+        if not isinstance(button, QPushButton):
+            return
+        
         # Store the original style
-        original_style = self.sender().styleSheet()
+        original_style = button.styleSheet()
         
         # Change the button color briefly
-        self.sender().setStyleSheet("""
+        button.setStyleSheet("""
             QPushButton {
                 background-color: #2ecc71;
                 color: white;
@@ -380,7 +385,7 @@ class TranslatorApp(QMainWindow):
         """)
         
         # Reset the button style after a short delay
-        QTimer.singleShot(300, lambda: self.sender().setStyleSheet(original_style))
+        QTimer.singleShot(300, lambda: button.setStyleSheet(original_style))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
