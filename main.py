@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QH
                              QPushButton, QTextEdit, QLabel, QMessageBox, QDialog, QLineEdit, 
                              QSpacerItem, QSizePolicy, QFrame, QScrollArea, QStyleFactory)
 from PyQt5.QtGui import QIcon, QFont, QPalette, QColor
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from translator import Translator
 from config_manager import ConfigManager
 
@@ -27,6 +27,8 @@ class CustomButton(QPushButton):
         """)
 
 class ToggleSwitch(QWidget):
+    toggled = pyqtSignal(bool)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFixedSize(60, 30)
@@ -56,7 +58,7 @@ class ToggleSwitch(QWidget):
     def mousePressEvent(self, event):
         self.is_on = not self.is_on
         self.update()
-        self.parent().toggle_direction()
+        self.toggled.emit(self.is_on)
 
 class SettingsDialog(QDialog):
     def __init__(self, config_manager):
@@ -160,6 +162,7 @@ class TranslatorApp(QMainWindow):
         control_panel = QWidget()
         control_layout = QHBoxLayout(control_panel)
         self.direction_toggle = ToggleSwitch(self)
+        self.direction_toggle.toggled.connect(self.toggle_direction)
         control_layout.addWidget(QLabel('🇬🇧'))
         control_layout.addWidget(self.direction_toggle)
         control_layout.addWidget(QLabel('🇩🇪'))
@@ -225,9 +228,13 @@ class TranslatorApp(QMainWindow):
         if dialog.exec_():
             self.translator.update_api_key(self.config_manager.get_api_key())
 
-    def toggle_direction(self):
-        # This method is called by the ToggleSwitch
-        pass
+    def toggle_direction(self, is_on):
+        # Update the translation direction based on the toggle state
+        if is_on:
+            print("Translating from English to German")
+        else:
+            print("Translating from German to English")
+        # You can add more logic here if needed
 
     def update_char_count(self):
         self.input_char_count.setText(f'Characters: {len(self.input_text.toPlainText())}')
