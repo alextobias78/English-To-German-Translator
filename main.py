@@ -46,8 +46,9 @@ class CustomButton(QPushButton):
             self.animate_button(self.initial_position)
 
     def animate_button(self, end_pos):
-        self.animation.setStartValue(self.pos())
-        self.animation.setEndValue(end_pos)
+        start_pos = self.pos()
+        self.animation.setStartValue(start_pos)
+        self.animation.setEndValue(QPoint(start_pos.x(), end_pos.y()))
         self.animation.start()
 
     def paintEvent(self, event):
