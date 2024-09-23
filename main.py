@@ -163,9 +163,12 @@ class TranslatorApp(QMainWindow):
         control_layout = QHBoxLayout(control_panel)
         self.direction_toggle = ToggleSwitch(self)
         self.direction_toggle.toggled.connect(self.toggle_direction)
-        control_layout.addWidget(QLabel('🇬🇧'))
+        self.en_label = QLabel('🇬🇧 EN')
+        self.de_label = QLabel('DE 🇩🇪')
+        control_layout.addWidget(self.en_label)
         control_layout.addWidget(self.direction_toggle)
-        control_layout.addWidget(QLabel('🇩🇪'))
+        control_layout.addWidget(self.de_label)
+        self.update_direction_labels(self.direction_toggle.is_on)
         translate_button = CustomButton('Translate')
         translate_button.clicked.connect(self.translate)
         control_layout.addWidget(translate_button)
@@ -211,7 +214,8 @@ class TranslatorApp(QMainWindow):
             return
 
         try:
-            translated_text = self.translator.translate(input_text, not self.direction_toggle.is_on)
+            # If is_on is True, we're translating from German to English
+            translated_text = self.translator.translate(input_text, to_german=not self.direction_toggle.is_on)
             self.output_text.setPlainText(translated_text)
         except Exception as e:
             error_message = str(e)
@@ -231,10 +235,18 @@ class TranslatorApp(QMainWindow):
     def toggle_direction(self, is_on):
         # Update the translation direction based on the toggle state
         if is_on:
-            print("Translating from English to German")
-        else:
             print("Translating from German to English")
-        # You can add more logic here if needed
+        else:
+            print("Translating from English to German")
+        self.update_direction_labels(is_on)
+
+    def update_direction_labels(self, is_on):
+        if is_on:
+            self.en_label.setStyleSheet("font-weight: bold;")
+            self.de_label.setStyleSheet("font-weight: normal;")
+        else:
+            self.en_label.setStyleSheet("font-weight: normal;")
+            self.de_label.setStyleSheet("font-weight: bold;")
 
     def update_char_count(self):
         self.input_char_count.setText(f'Characters: {len(self.input_text.toPlainText())}')
