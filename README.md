@@ -23,7 +23,7 @@ Welcome to LinguaSwap, the delightful desktop application that makes translating
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/linguaswap.git
+   git clone https://github.com/alextobias78/English-To-German-Translator.git
    ```
 
 2. Navigate to the project directory:
