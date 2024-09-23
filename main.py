@@ -122,7 +122,7 @@ class TranslatorApp(QMainWindow):
                 border: 1px solid #cccccc;
                 border-radius: 5px;
                 padding: 5px;
-                font-size: 16px;  # Increased font size
+                font-size: 16px;
             }
         """)
 
