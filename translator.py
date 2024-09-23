@@ -13,15 +13,15 @@ class Translator:
             raise Exception("API key is not set or invalid.")
 
         try:
-            system_content = "You are the perfect English to German translator." if to_german else "You are the perfect German to English translator."
+            system_content = "You are the perfect English to German translator. Do not mention yourself, only answer with the proper translation." if to_german else "You are the perfect German to English translator. Do not mention yourself, only answer with the proper translation."
             response = self.client.chat.completions.create(
-                model="gpt-4",  # Changed from "chatgpt-4o-latest" to "gpt-4"
+                model="chatgpt-4o-latest", 
                 messages=[
                     {"role": "system", "content": system_content},
                     {"role": "user", "content": f"Translate the following:\n\n{text}"}
                 ],
                 temperature=0,
-                max_tokens=1000,  # Reduced from 16383 to a more reasonable number
+                max_tokens=16383,
                 top_p=1,
                 frequency_penalty=0,
                 presence_penalty=0
