@@ -108,7 +108,7 @@ class TranslatorApp(QMainWindow):
 
     def init_ui(self):
         self.setWindowTitle('LinguaSwap')
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 1000, 800)  # Increased window size
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #f5f5f5;
@@ -122,6 +122,7 @@ class TranslatorApp(QMainWindow):
                 border: 1px solid #cccccc;
                 border-radius: 5px;
                 padding: 5px;
+                font-size: 16px;  # Increased font size
             }
         """)
 
@@ -132,31 +133,15 @@ class TranslatorApp(QMainWindow):
         # Header
         header = QWidget()
         header_layout = QHBoxLayout(header)
+        header_layout.setContentsMargins(0, 0, 0, 0)
         logo_label = QLabel("🌐 LinguaSwap")
-        logo_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #1a237e;")
+        logo_label.setStyleSheet("font-size: 20px; font-weight: bold; color: #1a237e;")
         header_layout.addWidget(logo_label)
         header_layout.addStretch()
         settings_button = CustomButton('⚙️ Settings')
         settings_button.clicked.connect(self.open_settings)
         header_layout.addWidget(settings_button)
         main_layout.addWidget(header)
-
-        # Input area
-        input_container = QFrame()
-        input_container.setStyleSheet("""
-            QFrame {
-                background-color: white;
-                border-radius: 10px;
-                padding: 10px;
-            }
-        """)
-        input_layout = QVBoxLayout(input_container)
-        input_layout.addWidget(QLabel('Original Text:'))
-        self.input_text = QTextEdit()
-        input_layout.addWidget(self.input_text)
-        self.input_char_count = QLabel('Characters: 0')
-        input_layout.addWidget(self.input_char_count)
-        main_layout.addWidget(input_container)
 
         # Control panel
         control_panel = QWidget()
@@ -168,7 +153,6 @@ class TranslatorApp(QMainWindow):
         control_layout.addWidget(self.en_label)
         control_layout.addWidget(self.direction_toggle)
         control_layout.addWidget(self.de_label)
-        self.update_direction_labels(self.direction_toggle.is_on)
         translate_button = CustomButton('Translate')
         translate_button.clicked.connect(self.translate)
         control_layout.addWidget(translate_button)
@@ -177,30 +161,42 @@ class TranslatorApp(QMainWindow):
         control_layout.addWidget(clear_button)
         main_layout.addWidget(control_panel)
 
+        # Text areas
+        text_layout = QHBoxLayout()
+
+        # Input area
+        input_layout = QVBoxLayout()
+        input_header = QHBoxLayout()
+        input_header.addWidget(QLabel('Original Text:'))
+        self.input_char_count = QLabel('Characters: 0')
+        input_header.addWidget(self.input_char_count)
+        input_layout.addLayout(input_header)
+        self.input_text = QTextEdit()
+        input_layout.addWidget(self.input_text)
+        text_layout.addLayout(input_layout)
+
         # Output area
-        output_container = QFrame()
-        output_container.setStyleSheet("""
-            QFrame {
-                background-color: white;
-                border-radius: 10px;
-                padding: 10px;
-            }
-        """)
-        output_layout = QVBoxLayout(output_container)
-        output_layout.addWidget(QLabel('Translated Text:'))
+        output_layout = QVBoxLayout()
+        output_header = QHBoxLayout()
+        output_header.addWidget(QLabel('Translated Text:'))
+        self.output_char_count = QLabel('Characters: 0')
+        output_header.addWidget(self.output_char_count)
+        output_layout.addLayout(output_header)
         self.output_text = QTextEdit()
         self.output_text.setReadOnly(True)
         output_layout.addWidget(self.output_text)
-        self.output_char_count = QLabel('Characters: 0')
-        output_layout.addWidget(self.output_char_count)
         copy_button = CustomButton('Copy to Clipboard')
         copy_button.clicked.connect(self.copy_to_clipboard)
         output_layout.addWidget(copy_button)
-        main_layout.addWidget(output_container)
+        text_layout.addLayout(output_layout)
+
+        main_layout.addLayout(text_layout)
 
         # Connect text changed signals
         self.input_text.textChanged.connect(self.update_char_count)
         self.output_text.textChanged.connect(self.update_char_count)
+
+        self.update_direction_labels(self.direction_toggle.is_on)
 
     def translate(self):
         api_key = self.config_manager.get_api_key()
